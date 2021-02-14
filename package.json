@@ -1,0 +1,17 @@
+{
+  "name": "old-island",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/frank575/old-island.git",
+  "author": "吳俊緯 <wcw850710@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "koa": "^2.13.1",
+    "koa-bodyparser": "^4.3.0",
+    "koa-router": "^10.0.0",
+    "require-directory": "^2.1.1"
+  },
+  "scripts": {
+    "start": "nodemon app.js"
+  }
+}
