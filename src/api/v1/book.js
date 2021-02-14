@@ -1,5 +1,5 @@
 const Router = require('koa-router')
-const { BookValidator } = require('../../validators')
+const { BookValidator } = require('../../validators/velidators')
 const { ErrorException } = require('../../core/ErrorException')
 const router = new Router()
 
