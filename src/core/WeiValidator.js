@@ -35,16 +35,24 @@ class WeiValidator {
       }
       return result
     })(state[keys[0]], 1)
-    this._setCache(key, value)
     return value
   }
 
-  _getCache(key) {
-    return this._cacheVal[key]
+  _getCache(key, parsed = true) {
+    const cacheValElement = this._cacheVal[key]
+    return typeof cacheValElement === 'object' ?
+      cacheValElement[parsed ? '1' : '0'] :
+      cacheValElement
   }
 
-  _setCache(key, value) {
-    this._cacheVal[key] = value
+  _setCache(key, value, parsed = true) {
+    const cacheValElement = this._cacheVal[key]
+    const parsedStr = parsed ? '1' : '0'
+    if (cacheValElement != null)
+      cacheValElement[parsedStr] = value
+    else
+      this._cacheVal[key] = { [parsedStr]: value }
+    return value
   }
 
   /**
@@ -53,18 +61,22 @@ class WeiValidator {
    * @param parsed 是否 parsed，比方轉數字、Boolean [Boolean]
    */
   get(key, parsed = true) {
-    let result = this._getCache(key) || this._recurGet(key)
-    if (result != null &&
+    const cache = this._getCache(key, parsed)
+    const originVal = cache || this._recurGet(key)
+    let parsedVal = null
+    if (originVal != null &&
       parsed) {
-      if (/\d+/.test(result))
-        result = parseInt(result)
-      else if (/[\d.]+/.test(result))
-        result = parseFloat(result)
-      else if (result === 'true' ||
-        result === 'false')
-        result = Boolean(result)
+      if (/\d+/.test(originVal))
+        parsedVal = parseInt(originVal)
+      else if (/[\d.]+/.test(originVal))
+        parsedVal = parseFloat(originVal)
+      else if (originVal === 'true' ||
+        originVal === 'false')
+        parsedVal = Boolean(originVal)
     }
-    return result
+    if (cache == null)
+      this._setCache(key, parsed ? parsedVal : originVal, parsed)
+    return parsedVal
   }
 
   /**
