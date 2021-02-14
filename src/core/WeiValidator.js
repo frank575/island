@@ -24,7 +24,7 @@ class WeiValidator {
    */
   _recurGet(key, state = this._state) {
     const keys = key.split('.')
-    const value = (function recurGet(state, i) {
+    return (function recurGet(state, i) {
       let result = null
       if (typeof state === 'object') {
         const stateElement = state[keys[i]]
@@ -35,7 +35,6 @@ class WeiValidator {
       }
       return result
     })(state[keys[0]], 1)
-    return value
   }
 
   _getCache(key, parsed = true) {
@@ -129,9 +128,11 @@ class Rule {
     this._param = ''
     this._value = undefined
   }
+
   _throwParamsErrorException(message) {
     throw new ParamsErrorException(`[${this._param}] ${this.message || message}`)
   }
+
   /**
    * 驗證是否必填
    * options
@@ -159,6 +160,7 @@ class Rule {
       }
     }
   }
+
   /**
    * 驗證是否是整數
    * options
@@ -179,8 +181,11 @@ class Rule {
           this._throwParamsErrorException(`不能大於 ${max}`)
     }
   }
+
   _checkBoolean() {}
+
   _checkEmail() {}
+
   _checkPhone() {}
 
   /**
