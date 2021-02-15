@@ -1,3 +1,7 @@
+/*
+200 查詢成功
+201 新增成功
+ */
 class ErrorException extends Error {
   constructor (message,
     errorCode,
@@ -9,11 +13,12 @@ class ErrorException extends Error {
     errorCode,
     status) {
     this.message = message || ''
-    this.errorCode = errorCode || 10000
+    this.errorCode = errorCode != null ? errorCode : 10000
     this.status = status || 400
   }
-  getResponse(ctx) {
+  getResponse(ctx, data) {
     ctx.body = {
+      data: data == null ? null : data,
       message: this.message,
       errorCode: this.errorCode,
       request: `[${ctx.method}] ${ctx.path}`
@@ -22,7 +27,7 @@ class ErrorException extends Error {
   }
 }
 
-class IntervalServerErrorException extends ErrorException {
+class InternalServerErrorException extends ErrorException {
   constructor () {
     super()
     this.setMembers('伺服器內部錯誤',
@@ -40,7 +45,7 @@ class NotFoundException extends ErrorException {
   }
 }
 
-class ParamsErrorException extends ErrorException {
+class ParameterErrorException extends ErrorException {
   constructor (message) {
     super()
     this.setMembers(message || '傳遞的參數錯誤',
@@ -58,10 +63,20 @@ class ValidatorErrorException extends ErrorException {
   }
 }
 
+class HttpSuccessResponse extends ErrorException {
+  constructor (message, status) {
+    super()
+    this.setMembers(message || 'ok',
+      0,
+      status || 200)
+  }
+}
+
 module.exports = {
   ErrorException,
-  InternalServerErrorException: IntervalServerErrorException,
+  InternalServerErrorException,
   NotFoundException,
-  ParamsErrorException,
+  ParameterErrorException,
   ValidatorErrorException,
+  HttpSuccessResponse,
 }
