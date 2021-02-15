@@ -3,11 +3,16 @@ const Router = require('koa-router')
 const parser = require('koa-bodyparser')
 const requireDirectory = require('require-directory')
 const catchError = require(`../middlewares/exception`)
+const $config = require('../config/config')
 
 class InitManager {
   static initCore(){
     const app = new Koa()
     InitManager.app = app
+    global.$config = $config
+
+    // 導入 model
+    require('../models/user')
 
     app.use(catchError)
     InitManager.initLoadRouters()
