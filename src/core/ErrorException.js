@@ -52,7 +52,7 @@ class ParamsErrorException extends ErrorException {
 class ValidatorErrorException extends ErrorException {
   constructor (message) {
     super()
-    this.setMembers(message || '較驗器錯誤',
+    this.setMembers(message || '校驗器錯誤',
       10000,
       400)
   }
@@ -60,7 +60,7 @@ class ValidatorErrorException extends ErrorException {
 
 module.exports = {
   ErrorException,
-  IntervalServerErrorException,
+  InternalServerErrorException: IntervalServerErrorException,
   NotFoundException,
   ParamsErrorException,
   ValidatorErrorException,
