@@ -1,7 +1,8 @@
-const { ParamsErrorException } = require('./ErrorException')
+const { ParameterErrorException } = require('./ErrorException')
 const { ValidatorErrorException } = require('./ErrorException')
 
 // TODO 新增參數匯出文檔功能(可能 Rule 需要多一個寫類型的參數)
+// TODO Rule.check 把 get 傳遞過去，讓他可以獲取 ctx 裡所有數據
 class WeiValidator {
   constructor (ctx) {
     this._state = {
@@ -57,25 +58,25 @@ class WeiValidator {
   /**
    * 取得 http 參數
    * @param key 取得 http 參數的 key, e.g. 'path.id' [String]
-   * @param parsed 是否 parsed，比方轉數字、Boolean [Boolean]
+   * @param parsed 是否字串轉型(body 不轉型)，比方轉數字、Boolean [Boolean]
    */
   get(key, parsed = true) {
-    const cache = this._getCache(key, parsed)
-    const originVal = cache || this._recurGet(key)
-    let parsedVal = originVal
-    if (parsedVal != null &&
-      parsed) {
-      if (/^\d+$/.test(parsedVal))
-        parsedVal = parseInt(parsedVal)
-      else if (/^[\d.]+$/.test(parsedVal))
-        parsedVal = parseFloat(parsedVal)
-      else if (parsedVal === 'true' ||
-        parsedVal === 'false')
-        parsedVal = Boolean(parsedVal)
+    const _parsed = key.indexOf('body.') === -1 ? parsed : false
+    const cache = this._getCache(key, _parsed)
+    let val = cache || this._recurGet(key)
+    if (val != null &&
+      _parsed) {
+      if (/^\d+$/.test(val))
+        val = parseInt(val)
+      else if (/^[\d.]+$/.test(val))
+        val = parseFloat(val)
+      else if (val === 'true' ||
+        val === 'false')
+        val = Boolean(val)
     }
     if (cache == null)
-      this._setCache(key, parsed ? parsedVal : originVal, parsed)
-    return parsedVal
+      this._setCache(key, val, _parsed)
+    return val
   }
 
   /**
@@ -89,26 +90,28 @@ class WeiValidator {
       this._rules = rulesOrCreateRule((r, m, o) => new Rule(r, m, o))
   }
 
-  validate() {
+  async validate() {
     const {_rules} = this
     if (_rules != null) {
       const checkResults = []
-      const runRule = (rule, key) => {
-        const checkResult = rule.check(key, this.get(key))
+      const waitRunRules = []
+      const runRule = async (rule, key) => {
+        const checkResult = await rule.check(key, this.get(key))
         if (checkResult != null)
           checkResults.push(checkResult)
       }
       for (const k in _rules) {
         const rules = _rules[k]
         if (Array.isArray(rules))
-          rules.forEach(rule => runRule(rule, k))
+          rules.forEach(rule => waitRunRules.push(runRule(rule, k)))
         else if (rules instanceof Rule)
-          runRule(rules, k)
+          waitRunRules.push(runRule(rules, k))
         else
           throw new ValidatorErrorException()
       }
+      await Promise.all(waitRunRules)
       if (checkResults.length > 0)
-        throw new ParamsErrorException(checkResults.length === 1 ?
+        throw new ParameterErrorException(checkResults.length === 1 ?
           checkResults[0] :
           checkResults)
     }
@@ -146,7 +149,9 @@ class Rule {
   /**
    * 驗證是否必填
    * options
-   *   @key len 字串長度 | [最小字元長度, 對大字元長度] [number, [number, number]]
+   *   @key min? 字串長度最小值 [number]
+   *   @key max? 字串長度最大值 [number]
+   *   @key equals? 字串長度符合值 [number]
    * @returns {string|*}
    */
   _checkRequired() {
@@ -158,14 +163,14 @@ class Rule {
       const val = typeof _value === 'number' ? String(_value) : _value
       if (typeof val === 'string') {
         const len = val.length
-        if (min != null)
-          if (len < min)
+        if (min != null &&
+          len < min)
             return this._getErrorMessage(`不得小於 ${min} 個字元`)
-        if (max != null)
-          if (len > max)
+        if (max != null &&
+          len > max)
             return this._getErrorMessage(`不得大於 ${max} 個字元`)
-        if (equals != null)
-          if (len !== equals)
+        if (equals != null &&
+          len !== equals)
             return this._getErrorMessage(`必須為 ${equals} 個字元`)
       }
     }
@@ -174,8 +179,8 @@ class Rule {
   /**
    * 驗證是否是整數
    * options
-   *   @key min 最小值 [number]
-   *   @key max 最大值 [number]
+   *   @key min? 最小值 [number]
+   *   @key max? 最大值 [number]
    * @returns {string|*}
    */
   _checkInt() {
@@ -184,12 +189,36 @@ class Rule {
       return this._getErrorMessage('必須為正整數')
     if (options != null) {
       const {min, max} = options
-      if (min != null)
-        if (_value < min)
+      if (min != null &&
+        _value < min)
           return this._getErrorMessage(`不能小於 ${min}`)
-      if (max != null)
-        if (_value > max)
+      if (max != null &&
+        _value > max)
           return this._getErrorMessage(`不能大於 ${max}`)
+    }
+  }
+
+  /**
+   * 驗證是否是整數
+   * options
+   *   @key model sequelize model [Model]
+   *   @key key 比對的 db 字段名 [string]
+   * @returns {string|*}
+   */
+  async _checkUnique() {
+    const { _value, options } = this
+    if (options != null) {
+      const { model, key } = options
+      if (model != null &&
+        key != null) {
+        const check = await model.findOne({
+          where: {
+            [key]: _value,
+          }
+        })
+        if (check != null)
+          return this._getErrorMessage(`已存在`)
+      }
     }
   }
 
@@ -205,7 +234,7 @@ class Rule {
    * @param value 參數值 [any]
    * @returns {string|*}
    */
-  check(param, value) {
+  async check(param, value) {
     const {rule} = this
     this._param = param
     this._value = value
@@ -215,11 +244,11 @@ class Rule {
       const checkFunctionKey = `_check${ruleName}`
       const checkFunction = this[checkFunctionKey]
       if (checkFunction != null)
-        return checkFunction.call(this)
+        return await checkFunction.call(this)
       else
         throw new ValidatorErrorException(`[${rule}] 未定義 check 函數`)
     } else if (typeof rule === 'function' &&
-      !rule(value))
+      !(await rule(value)))
       return this._getErrorMessage()
   }
 }
