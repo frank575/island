@@ -1,14 +1,15 @@
 const Router = require('koa-router')
+const router = new Router()
 const { BookValidator } = require('../../validators/velidators')
 const { ErrorException } = require('../../core/ErrorException')
-const router = new Router()
 
-router.get('/v1/book/:id', async (ctx, next) => {
+router.get('/v1/book/:id', async ctx => {
   const v = new BookValidator(ctx)
-  v.validate()
+  const aaa = v.get('query.name', false)
+  await v.validate()
   ctx.body = {
     id: v.get('params.id'),
-    name: v.get('query.name', false),
+    name: aaa,
   }
 })
 
