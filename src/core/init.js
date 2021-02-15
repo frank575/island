@@ -4,6 +4,7 @@ const parser = require('koa-bodyparser')
 const requireDirectory = require('require-directory')
 const catchError = require(`../middlewares/exception`)
 const $config = require('../config/config')
+const successResponse = require('../middlewares/successResponse')
 
 class InitManager {
   static initCore(){
@@ -11,11 +12,9 @@ class InitManager {
     InitManager.app = app
     global.$config = $config
 
-    // 導入 model
-    require('../models/user')
-
     app.use(parser())
     app.use(catchError)
+    app.use(successResponse)
     InitManager.initLoadRouters()
 
     app.listen( 3003)
