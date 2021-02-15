@@ -14,10 +14,10 @@ class InitManager {
     // 導入 model
     require('../models/user')
 
+    app.use(parser())
     app.use(catchError)
     InitManager.initLoadRouters()
 
-    app.use(parser())
     app.listen( 3003)
   }
 
