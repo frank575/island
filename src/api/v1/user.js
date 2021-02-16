@@ -17,4 +17,9 @@ router.post('/register', async ctx => {
   await User.create(user)
 })
 
+// 登入
+router.post('/login', async ctx => {
+  // TODO 驗證帳號是否存在，驗證密碼是否正確(bcrypt.compareSync(pwd, hashPwd))
+})
+
 module.exports = router
