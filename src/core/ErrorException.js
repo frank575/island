@@ -9,14 +9,16 @@ class ErrorException extends Error {
     super()
     this.setMembers(message, errorCode, status)
   }
-  setMembers(message,
+
+  setMembers (message,
     errorCode,
     status) {
     this.message = message || ''
     this.errorCode = errorCode != null ? errorCode : 10000
     this.status = status || 400
   }
-  getResponse(ctx, data) {
+
+  getResponse (ctx, data) {
     ctx.body = {
       data: data == null ? null : data,
       message: this.message,
@@ -49,8 +51,7 @@ class ParameterErrorException extends ErrorException {
   constructor (message) {
     super()
     this.setMembers(message || '傳遞的參數錯誤',
-      10000,
-      400)
+      10000)
   }
 }
 
@@ -58,8 +59,7 @@ class ValidatorErrorException extends ErrorException {
   constructor (message) {
     super()
     this.setMembers(message || '校驗器錯誤',
-      10000,
-      400)
+      10000)
   }
 }
 
@@ -76,17 +76,45 @@ class UserLoginFailException extends ErrorException {
   constructor () {
     super()
     this.setMembers('帳號或密碼錯誤',
+      10000)
+  }
+}
+
+class JWTErrorException extends ErrorException {
+  constructor (message) {
+    super()
+    this.setMembers(message || 'jwt error',
       10000,
-      400)
+      401)
+  }
+}
+
+class UnauthorizedException extends ErrorException {
+  constructor (message) {
+    super()
+    this.setMembers(message || '授權失敗',
+      10000,
+      401)
+  }
+}
+
+class UserNotFoundException extends ErrorException {
+  constructor () {
+    super()
+    this.setMembers('找不到使用者',
+      10000)
   }
 }
 
 module.exports = {
   ErrorException,
+  JWTErrorException,
   InternalServerErrorException,
   NotFoundException,
   ParameterErrorException,
   ValidatorErrorException,
   HttpSuccessResponse,
   UserLoginFailException,
+  UnauthorizedException,
+  UserNotFoundException,
 }

@@ -1,4 +1,4 @@
-module.exports = {
+const config = {
   env: 'dev',
   db: {
     dbname: 'island',
@@ -6,5 +6,11 @@ module.exports = {
     port: 3306,
     username: 'root',
     password: '',
-  }
+  },
+  pass: [
+    'v1/user/register',
+    'v1/user/login',
+  ]
 }
+
+module.exports = config

@@ -1,19 +1,32 @@
 const bcrypt = require('bcryptjs')
 const { Model, DataTypes } = require('sequelize')
 const sequelize = require('../core/db')
+const Auth = require('../core/Auth')
 const { UserLoginFailException } = require('../core/ErrorException')
 
 class User extends Model {
+  /**
+   * 登入驗證
+   * @param username
+   * @param password
+   * @returns {Promise<{ user: User, token: string }>}
+   */
   static async verifyLogin(username, password) {
     const user = await User.findOne({
       where: {
         username
       }
     })
+    let token
     if (user != null) {
-      const checkPassword = bcrypt.compareSync(password, user.password)
+      const checkPassword = await bcrypt.compare(password, user.password)
       if (!checkPassword) throw new UserLoginFailException()
+      token = Auth.createToken(user)
     } else throw new UserLoginFailException()
+    return {
+      user,
+      token,
+    }
   }
 }
 User.init({

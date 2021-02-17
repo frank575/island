@@ -1,12 +1,12 @@
+const config = require('../config/config')
 const { Sequelize } = require('sequelize')
-const { $config } = global
 const {
   dbname,
   host,
   port,
   username,
   password,
-} = $config.db
+} = config.db
 const sequelize = new Sequelize(dbname, username, password, {
   dialect: 'mysql',
   host,
@@ -28,7 +28,7 @@ const sequelize = new Sequelize(dbname, username, password, {
 // 自動創建模型
 sequelize.sync({
   // 自動刪表重建 (production 要注意，不然資料會遺失)
-  force: $config.env === 'dev',
+  // force: config.env === 'dev',
 })
 
 module.exports = sequelize
