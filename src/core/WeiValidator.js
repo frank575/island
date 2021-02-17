@@ -262,7 +262,16 @@ class Rule {
     }
   }
 
-  _checkBoolean() {}
+  /**
+   * 驗證是否是布爾值
+   * @returns {string|*}
+   */
+  _checkBoolean() {
+    const { _value } = this
+    if (typeof _value === 'boolean')
+      return
+    return this._getErrorMessage(`非布爾值`)
+  }
 
   _checkEmail() {}
 
