@@ -101,6 +101,36 @@ class WeiValidator {
           checkResults.push(checkResult)
       }
       for (const k in _rules) {
+        for (const l in _rules[k]) {
+          const rules = _rules[k][l]
+          if (Array.isArray(rules))
+            rules.forEach(rule => waitRunRules.push(runRule(rule, `${k}.${l}`)))
+          else if (rules instanceof Rule)
+            waitRunRules.push(runRule(rules, `${k}.${l}`))
+          else
+            throw new ValidatorErrorException()
+        }
+      }
+      await Promise.all(waitRunRules)
+      if (checkResults.length > 0)
+        throw new ParameterErrorException(checkResults.length === 1 ?
+          checkResults[0] :
+          checkResults)
+    }
+    return this
+  }
+
+  async validateV1() {
+    const {_rules} = this
+    if (_rules != null) {
+      const checkResults = []
+      const waitRunRules = []
+      const runRule = async (rule, key) => {
+        const checkResult = await rule.check(key, this.get(key))
+        if (checkResult != null)
+          checkResults.push(checkResult)
+      }
+      for (const k in _rules) {
         const rules = _rules[k]
         if (Array.isArray(rules))
           rules.forEach(rule => waitRunRules.push(runRule(rule, k)))
