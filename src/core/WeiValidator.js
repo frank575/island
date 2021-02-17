@@ -103,11 +103,12 @@ class WeiValidator {
       const recurPushRunRule = (data, key) => {
         if (typeof data === 'object')
           if (Array.isArray(data))
-            data.forEach(rule =>
-              rule instanceof Rule ?
-                waitRunRules.push(runRule(rule, key)) :
+            data.forEach(rule => {
+              if (rule instanceof Rule)
+                waitRunRules.push(runRule(rule, key))
+              else
                 throw new ValidatorErrorException(`[${key}] 規則請使用 Rule 來定義`)
-            )
+            })
           else if (data instanceof Rule)
             waitRunRules.push(runRule(data, key))
           else
@@ -117,7 +118,7 @@ class WeiValidator {
           throw new ValidatorErrorException()
       }
       for (const k in _rules)
-        recurPushRunRule(_rules, k)
+        recurPushRunRule(_rules[k], k)
       await Promise.all(waitRunRules)
       if (checkResults.length > 0)
         throw new ParameterErrorException(checkResults.length === 1 ?
