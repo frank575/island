@@ -17,8 +17,10 @@ class Auth {
     const path = ctx.path
     const pass = passList.some(e => path.indexOf(e) !== -1)
 
-    if (pass === true)
-      return await next()
+    if (pass === true) {
+      await next()
+      return
+    }
 
     if (authorization == null)
       throw new UnauthorizedException('請確認驗證參數是否正確')
