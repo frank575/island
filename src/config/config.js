@@ -7,10 +7,6 @@ const config = {
     username: 'root',
     password: '',
   },
-  pass: [
-    'v1/user/register',
-    'v1/user/login',
-  ]
 }
 
 module.exports = config
