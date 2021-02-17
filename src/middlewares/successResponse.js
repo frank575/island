@@ -1,21 +1,15 @@
 const { HttpSuccessResponse } = require('../core/ErrorException')
 
-async function successResponse(cxt, next) {
+async function successResponse(ctx, next) {
   const res = await next()
-  const method = cxt.method
+  const method = ctx.method
   const status = method === 'POST'
     ? 201
     : 200
-  let message, data
-  if (typeof res === 'object') {
-    if (res.data != null)
-      data = res.data
-    if (res.message != null)
-      message = res.message
-  } else
-    data = res
-
-  new HttpSuccessResponse(message, status).getResponse(cxt, data)
+  if (typeof res === 'function')
+    res(status)
+  else
+    new HttpSuccessResponse('ok', status).getResponse(ctx, res)
 }
 
 module.exports = successResponse
