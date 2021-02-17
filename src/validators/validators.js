@@ -6,16 +6,6 @@ const passwordRules = r => [
   r(v => /^(?![0-9]+$)(?![A-z]+$)[0-9A-z]/.test(v), '密碼格式不符合規範')
 ]
 
-class BookValidator extends WeiValidator {
-  constructor (ctx) {
-    super(ctx)
-    this.createRules(r => ({
-      'params.id': r('int', { min: 1 }),
-      'query.name': r('required', { min: 1, max: 5 })
-    }))
-  }
-}
-
 class RegisterValidator extends WeiValidator {
   constructor (ctx) {
     super(ctx)
@@ -49,7 +39,6 @@ class LoginValidator extends WeiValidator {
 }
 
 module.exports = {
-  BookValidator,
   RegisterValidator,
   LoginValidator,
 }
