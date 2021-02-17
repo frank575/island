@@ -119,6 +119,7 @@ class WeiValidator {
   }
 }
 
+// TODO checkOptional 新增可選驗證
 class Rule {
   /***
    * new
