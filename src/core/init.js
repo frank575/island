@@ -4,7 +4,6 @@ const parser = require('koa-bodyparser')
 const requireDirectory = require('require-directory')
 const catchError = require(`../middlewares/exception`)
 const successResponse = require('../middlewares/successResponse')
-const Auth = require('./Auth')
 
 class InitManager {
   static initCore () {
@@ -13,15 +12,6 @@ class InitManager {
 
     app.use(parser())
     app.use(catchError)
-    app.use(
-      Auth.authorize({
-        pass: [
-          'v1/user/register',
-          'v1/user/login',
-          'v1/book'
-        ]
-      })
-    )
     app.use(successResponse)
     InitManager.initLoadRouters()
 

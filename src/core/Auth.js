@@ -1,6 +1,11 @@
 const jwt = require('jsonwebtoken')
 const { UnauthorizedException } = require('./ErrorException')
 
+// TODO 權限分級 scope
+// TODO middleware 掛載到每個路由下，而不是全局統一掛載
+// TODO 路徑移到 middlewares 下
+// TODO getter m 改寫
+// TODO delete userExpired 要寫成方法調用
 class Auth {
   /**
    * 紀錄使用者過期時間
@@ -8,26 +13,17 @@ class Auth {
    */
   static userExpired = {}
   static _SECRET = 'island_project_jsonwebtoken_secret'
+  static level = {}
 
-  static authorize(options) {
-    const { pass: passRoutes = [] } = options
-    return async (ctx, next) => {
-      const headers = ctx.request.headers
-      const { authorization } = headers
-      const path = ctx.path
-      const pass = passRoutes.some(e => path.indexOf(e) !== -1)
+  async m(ctx, next) {
+    const headers = ctx.request.headers
+    const { authorization } = headers
 
-      if (pass === true) {
-        await next()
-        return
-      }
+    if (authorization == null)
+      throw new UnauthorizedException('請確認驗證參數是否正確')
 
-      if (authorization == null)
-        throw new UnauthorizedException('請確認驗證參數是否正確')
-
-      await Auth.getDecoded(ctx, authorization)
-      await next()
-    }
+    await Auth.getDecoded(ctx, authorization)
+    await next()
   }
   /**
    * 創建 jsonwebtoken
