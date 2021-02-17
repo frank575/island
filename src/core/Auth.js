@@ -3,6 +3,12 @@ const config = require('../config/config')
 const { UnauthorizedException } = require('./ErrorException')
 
 class Auth {
+  /**
+   * 紀錄使用者過期時間
+   * @type {[userId: number]: number} {[使用者 id]: 過期時間}
+   */
+  static userExpired = {}
+
   static async authorize(ctx, next) {
     const headers = ctx.request.headers
     const { authorization } = headers
@@ -28,8 +34,9 @@ class Auth {
   static createToken(user) {
     const expiresIn = 86400000
     const exp = Date.now() + expiresIn
-    // 建立 token
-    return jwt.sign({ _id: user.id, exp }, 'island_project_jsonwebtoken_secret')
+    const userId = user.id
+    Auth.userExpired[userId] = exp
+    return jwt.sign({ id: userId }, 'island_project_jsonwebtoken_secret')
   }
 
   /**
@@ -42,12 +49,14 @@ class Auth {
     const token = authorization.replace('Bearer ', '')
     const decoded = await jwt.verify(token, 'island_project_jsonwebtoken_secret')
     const now = Date.now()
-    const isExpired = decoded.exp != null &&
-      now > decoded.exp
-    if (isExpired)
-      throw new UnauthorizedException('授權已過期')
+    let exp = Auth.userExpired[decoded.id]
+    const isExpired = exp == null ||
+      now > exp
+    if (isExpired) {
+      delete Auth.userExpired[decoded.id]
+      throw new UnauthorizedException('授權失敗')
+    }
     ctx.decoded = decoded
-    return decoded
   }
 }
 
