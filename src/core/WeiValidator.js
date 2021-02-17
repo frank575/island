@@ -3,7 +3,6 @@ const { ValidatorErrorException } = require('./ErrorException')
 
 // TODO 新增參數匯出文檔功能(可能 Rule 需要多一個寫類型的參數)
 // TODO Rule.check 把 get 傳遞過去，讓他可以獲取 ctx 裡所有數據
-// TODO validate 時要驗證 rule instance 是否為 Rule
 class WeiValidator {
   constructor (ctx) {
     this._state = {
@@ -101,17 +100,24 @@ class WeiValidator {
         if (checkResult != null)
           checkResults.push(checkResult)
       }
-      for (const k in _rules) {
-        for (const l in _rules[k]) {
-          const rules = _rules[k][l]
-          if (Array.isArray(rules))
-            rules.forEach(rule => waitRunRules.push(runRule(rule, `${k}.${l}`)))
-          else if (rules instanceof Rule)
-            waitRunRules.push(runRule(rules, `${k}.${l}`))
+      const recurPushRunRule = (data, key) => {
+        if (typeof data === 'object')
+          if (Array.isArray(data))
+            data.forEach(rule =>
+              rule instanceof Rule ?
+                waitRunRules.push(runRule(rule, key)) :
+                throw new ValidatorErrorException(`[${key}] 規則請使用 Rule 來定義`)
+            )
+          else if (data instanceof Rule)
+            waitRunRules.push(runRule(data, key))
           else
-            throw new ValidatorErrorException()
-        }
+            for (const k in data)
+              recurPushRunRule(data[k], `${key}.${k}`)
+        else
+          throw new ValidatorErrorException()
       }
+      for (const k in _rules)
+        recurPushRunRule(_rules, k)
       await Promise.all(waitRunRules)
       if (checkResults.length > 0)
         throw new ParameterErrorException(checkResults.length === 1 ?
@@ -121,6 +127,7 @@ class WeiValidator {
     return this
   }
 
+  // (舊版 validate) 調用方式採： xxx.xxx: r(...)
   async validateV1() {
     const {_rules} = this
     if (_rules != null) {
