@@ -8,6 +8,7 @@ class Auth {
    * @type {[userId: number]: number} {[使用者 id]: 過期時間}
    */
   static userExpired = {}
+  static _SECRET = 'island_project_jsonwebtoken_secret'
 
   static async authorize(ctx, next) {
     const headers = ctx.request.headers
@@ -36,7 +37,7 @@ class Auth {
     const exp = Date.now() + expiresIn
     const userId = user.id
     Auth.userExpired[userId] = exp
-    return jwt.sign({ id: userId }, 'island_project_jsonwebtoken_secret')
+    return jwt.sign({ id: userId }, Auth._SECRET)
   }
 
   /**
@@ -47,7 +48,7 @@ class Auth {
    */
   static async getDecoded(ctx, authorization) {
     const token = authorization.replace('Bearer ', '')
-    const decoded = await jwt.verify(token, 'island_project_jsonwebtoken_secret')
+    const decoded = await jwt.verify(token, Auth._SECRET)
     const now = Date.now()
     let exp = Auth.userExpired[decoded.id]
     const isExpired = exp == null ||
