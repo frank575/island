@@ -1,5 +1,5 @@
 class Enum {
-  static create(enums) {
+  static init(enums) {
     enums._reverse = {}
     for (const k in enums)
       enums._reverse[enums[k]] = k
@@ -23,7 +23,7 @@ class Enum {
 const LoginType = {
   USER_MINI_PROGRAM: 100
 }
-Enum.create(LoginType)
+Enum.init(LoginType)
 
 module.exports = {
   LoginType,
