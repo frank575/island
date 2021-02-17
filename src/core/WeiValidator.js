@@ -8,7 +8,7 @@ class WeiValidator {
     this._state = {
       params: ctx.params,
       query: ctx.request.query,
-      header: ctx.request.header,
+      headers: ctx.request.headers,
       body: ctx.request.body,
     }
     this._rules = undefined
