@@ -1,6 +1,7 @@
 const Router = require('koa-router')
 const User = require('../../models/user')
-const { RegisterValidator } = require('../../validators/velidators')
+const { LoginValidator } = require('../../validators/validators')
+const { RegisterValidator } = require('../../validators/validators')
 const router = new Router({
   // 路由前綴
   prefix: '/v1/user'
@@ -19,7 +20,12 @@ router.post('/register', async ctx => {
 
 // 登入
 router.post('/login', async ctx => {
-  // TODO 驗證帳號是否存在，驗證密碼是否正確(bcrypt.compareSync(pwd, hashPwd))
+  const v = await new LoginValidator(ctx).validate()
+  await User.verifyLogin(v.get('body.username'), v.get('body.password'))
+})
+
+// 登出
+router.post('/logout', async ctx => {
 })
 
 module.exports = router
