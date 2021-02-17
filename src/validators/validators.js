@@ -1,9 +1,14 @@
 const User = require('../models/user')
 const { WeiValidator } = require('../core/WeiValidator')
 
+const passwordRules = r => [
+  r('required', { min: 8, max: 32 }),
+  r(v => /^(?![0-9]+$)(?![A-z]+$)[0-9A-z]/.test(v), '密碼格式不符合規範')
+]
+
 class BookValidator extends WeiValidator {
   constructor (ctx) {
-    super(ctx);
+    super(ctx)
     this.createRules(r => ({
       'params.id': r('int', { min: 1 }),
       'query.name': r('required', { min: 1, max: 5 })
@@ -13,11 +18,7 @@ class BookValidator extends WeiValidator {
 
 class RegisterValidator extends WeiValidator {
   constructor (ctx) {
-    super(ctx);
-    const passwordRules = r => [
-      r('required', { min: 8, max: 32 }),
-      r(v => /^(?![0-9]+$)(?![A-z]+$)[0-9A-z]/.test(v), '密碼格式不符合規範')
-    ]
+    super(ctx)
     this.createRules(r => ({
       'body.username': [
         // r('email'),
@@ -34,7 +35,21 @@ class RegisterValidator extends WeiValidator {
   }
 }
 
+class LoginValidator extends WeiValidator {
+  constructor (ctx) {
+    super(ctx)
+    this.createRules(r => ({
+      'body.username': r('required', { min: 6, max: 20 }),
+      'body.password': [
+        r('required', { min: 8, max: 32 }),
+        r(v => /^(?![0-9]+$)(?![A-z]+$)[0-9A-z]/.test(v), '密碼格式不符合規範')
+      ]
+    }))
+  }
+}
+
 module.exports = {
   BookValidator,
   RegisterValidator,
+  LoginValidator,
 }

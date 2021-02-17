@@ -72,6 +72,15 @@ class HttpSuccessResponse extends ErrorException {
   }
 }
 
+class UserLoginFailException extends ErrorException {
+  constructor () {
+    super()
+    this.setMembers('帳號或密碼錯誤',
+      10000,
+      400)
+  }
+}
+
 module.exports = {
   ErrorException,
   InternalServerErrorException,
@@ -79,4 +88,5 @@ module.exports = {
   ParameterErrorException,
   ValidatorErrorException,
   HttpSuccessResponse,
+  UserLoginFailException,
 }
