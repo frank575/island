@@ -3,6 +3,7 @@ const { ValidatorErrorException } = require('./ErrorException')
 
 // TODO 新增參數匯出文檔功能(可能 Rule 需要多一個寫類型的參數)
 // TODO Rule.check 把 get 傳遞過去，讓他可以獲取 ctx 裡所有數據
+// TODO 改成中間件形式調用
 class WeiValidator {
   constructor (ctx) {
     this._state = {

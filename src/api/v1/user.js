@@ -32,7 +32,9 @@ router.put('/logout', async ctx => {
 })
 
 // 取得使用者資料
-router.get('/info', Auth.m(), async ctx => {
+router.get('/info',
+  Auth.m(),
+  async ctx => {
   const user = await User.findOne({
     where: {
       id: ctx.auth.id,

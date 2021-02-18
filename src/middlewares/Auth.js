@@ -7,6 +7,7 @@ const { JsonWebTokenError } = require('jsonwebtoken')
 const { ForbiddenException } = require('../core/ErrorException')
 
 // TODO 權限分級 scope
+// TODO 整理目錄
 class Auth {
   /**
    * 紀錄使用者過期時間
