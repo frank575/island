@@ -1,7 +1,7 @@
 const bcrypt = require('bcryptjs')
 const { Model, DataTypes } = require('sequelize')
 const sequelize = require('../core/db')
-const Auth = require('../core/Auth')
+const Auth = require('../middlewares/Auth')
 const { UserLoginFailException } = require('../core/ErrorException')
 
 class User extends Model {

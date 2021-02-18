@@ -2,7 +2,7 @@
 200 查詢成功
 201 新增成功
  */
-class ErrorException extends Error {
+class HTTPResponse extends Error {
   constructor (message,
     errorCode,
     status) {
@@ -29,7 +29,7 @@ class ErrorException extends Error {
   }
 }
 
-class InternalServerErrorException extends ErrorException {
+class InternalServerErrorException extends HTTPResponse {
   constructor () {
     super()
     this.setMembers('伺服器內部錯誤',
@@ -38,7 +38,7 @@ class InternalServerErrorException extends ErrorException {
   }
 }
 
-class NotFoundException extends ErrorException {
+class NotFoundException extends HTTPResponse {
   constructor () {
     super()
     this.setMembers('資源未找到',
@@ -47,7 +47,7 @@ class NotFoundException extends ErrorException {
   }
 }
 
-class ParameterErrorException extends ErrorException {
+class ParameterErrorException extends HTTPResponse {
   constructor (message) {
     super()
     this.setMembers(message || '傳遞的參數錯誤',
@@ -55,7 +55,7 @@ class ParameterErrorException extends ErrorException {
   }
 }
 
-class ValidatorErrorException extends ErrorException {
+class ValidatorErrorException extends HTTPResponse {
   constructor (message) {
     super()
     this.setMembers(message || '校驗器錯誤',
@@ -63,7 +63,7 @@ class ValidatorErrorException extends ErrorException {
   }
 }
 
-class HttpSuccessResponse extends ErrorException {
+class HttpSuccessResponse extends HTTPResponse {
   constructor (message, status) {
     super()
     this.setMembers(message || 'ok',
@@ -72,7 +72,7 @@ class HttpSuccessResponse extends ErrorException {
   }
 }
 
-class UserLoginFailException extends ErrorException {
+class UserLoginFailException extends HTTPResponse {
   constructor () {
     super()
     this.setMembers('帳號或密碼錯誤',
@@ -80,25 +80,25 @@ class UserLoginFailException extends ErrorException {
   }
 }
 
-class JWTErrorException extends ErrorException {
+class JWTErrorException extends HTTPResponse {
   constructor (message) {
     super()
     this.setMembers(message || 'jwt error',
-      10000,
+      10005,
       401)
   }
 }
 
-class UnauthorizedException extends ErrorException {
+class ForbiddenException extends HTTPResponse {
   constructor (message) {
     super()
     this.setMembers(message || '授權失敗',
-      10000,
-      401)
+      10006,
+      403)
   }
 }
 
-class UserNotFoundException extends ErrorException {
+class UserNotFoundException extends HTTPResponse {
   constructor () {
     super()
     this.setMembers('找不到使用者',
@@ -107,7 +107,7 @@ class UserNotFoundException extends ErrorException {
 }
 
 module.exports = {
-  ErrorException,
+  HTTPResponse,
   JWTErrorException,
   InternalServerErrorException,
   NotFoundException,
@@ -115,6 +115,6 @@ module.exports = {
   ValidatorErrorException,
   HttpSuccessResponse,
   UserLoginFailException,
-  UnauthorizedException,
+  ForbiddenException,
   UserNotFoundException,
 }

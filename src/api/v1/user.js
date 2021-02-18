@@ -1,6 +1,6 @@
 const Router = require('koa-router')
 const User = require('../../models/user')
-const Auth = require('../../core/Auth')
+const Auth = require('../../middlewares/Auth')
 const { UserNotFoundException } = require('../../core/ErrorException')
 const { LoginValidator } = require('../../validators/validators')
 const { RegisterValidator } = require('../../validators/validators')
@@ -28,14 +28,14 @@ router.post('/login', async ctx => {
 
 // 登出
 router.put('/logout', async ctx => {
-  delete Auth.userExpired[ctx.decoded.id]
+  Auth.expired(ctx)
 })
 
 // 取得使用者資料
-router.get('/info', async ctx => {
+router.get('/info', Auth.m(), async ctx => {
   const user = await User.findOne({
     where: {
-      id: ctx.decoded.id,
+      id: ctx.auth.id,
     }
   })
   if (user == null)
