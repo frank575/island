@@ -6,7 +6,6 @@ const { NotBeforeError } = require('jsonwebtoken')
 const { JsonWebTokenError } = require('jsonwebtoken')
 const { ForbiddenException } = require('../core/ErrorException')
 
-// TODO 權限分級 scope
 // TODO 整理目錄
 class Auth {
   /**
@@ -19,10 +18,10 @@ class Auth {
 
   /**
    *
-   * @param level 權限分級 [number]
+   * @param level? 權限分級(空為不分級) [number]
    * @returns {function(ctx, next): *}
    */
-  static m(level = 99) {
+  static m(level) {
     return async (ctx, next) => {
       const headers = ctx.request.headers
       const { authorization } = headers
@@ -30,30 +29,35 @@ class Auth {
       if (authorization == null)
         throw new ForbiddenException('請確認驗證參數是否正確')
 
-      await Auth.getDecoded(ctx, authorization)
+      const decoded = await Auth.getDecoded(authorization)
+      if (level != null &&
+        decoded.scope < level)
+        throw new ForbiddenException('權限不足')
+      ctx.auth = decoded
+
       return await next()
     }
   }
+
   /**
    * 創建 jsonwebtoken
    * @param user 使用者資料 [User]
-   * @returns {string} jsonwebtoken
+   * @returns {string} jsonwebtoken payload { id: user.id, scope: 權限分級 }
    */
   static createToken(user) {
     const expiresIn = 86400000
     const exp = Date.now() + expiresIn
     const userId = user.id
     Auth.userExpired[userId] = exp
-    return jwt.sign({ id: userId }, Auth._SECRET)
+    return jwt.sign({ id: userId, scope: 1 }, Auth._SECRET)
   }
 
   /**
    * 取得使用者資料 where id, token
-   * @param ctx
    * @param authorization Bearer ...
    * @returns {Promise<User|null>}
    */
-  static async getDecoded(ctx, authorization) {
+  static async getDecoded(authorization) {
     if (authorization === '')
       throw new ForbiddenException('授權失敗')
 
@@ -68,7 +72,7 @@ class Auth {
         delete Auth.userExpired[decoded.id]
         throw new ForbiddenException('授權失敗')
       }
-      ctx.auth = decoded
+      return decoded
     } catch (err) {
       if (err instanceof HTTPResponse)
         throw err
