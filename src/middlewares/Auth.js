@@ -49,7 +49,9 @@ class Auth {
     const exp = Date.now() + expiresIn
     const userId = user.id
     Auth.userExpired[userId] = exp
-    return jwt.sign({ id: userId, scope: 1 }, Auth._SECRET)
+    return jwt.sign({ id: userId, scope: 1 }, Auth._SECRET, {
+      expiresIn
+    })
   }
 
   /**
