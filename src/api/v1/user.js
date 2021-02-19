@@ -10,8 +10,10 @@ const router = new Router({
 })
 
 // 註冊
-router.post('/register', async ctx => {
-  const v = await new RegisterValidator(ctx).validate()
+router.post('/register',
+  RegisterValidator.v.bind(RegisterValidator),
+  async ctx => {
+  const { v } = ctx
   const user = {
     username: v.get('body.username'),
     password: v.get('body.password'),

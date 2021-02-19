@@ -16,6 +16,13 @@ class WeiValidator {
     this._cacheVal = {}
   }
 
+  static async v(ctx, next) {
+    const self = new this(ctx)
+    await self.validate()
+    ctx.v = self
+    return await next()
+  }
+
   /**
    * key 遞歸遍歷值並緩存數據至 _cacheVal
    * @param key 遍歷的 key 路徑, e.g. 'params.id' [String]
