@@ -1,5 +1,5 @@
 const User = require('../models/user')
-const { WeiValidator } = require('../core/WeiValidator')
+const { WeiValidator } = require('../core/55koaValidator')
 
 const passwordRules = r => [
   r('required', { min: 8, max: 32 }),

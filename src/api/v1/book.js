@@ -1,5 +1,5 @@
 const Router = require('koa-router')
-const { WeiValidator } = require('../../core/WeiValidator')
+const { WeiValidator } = require('../../core/55koaValidator')
 const router = new Router()
 
 router.get('/v1/book/:id', async ctx => {
