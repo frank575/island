@@ -3,7 +3,7 @@ const { ValidatorErrorException } = require('./ErrorException')
 
 // TODO 新增參數匯出文檔功能(可能 Rule 需要多一個寫類型的參數)
 // TODO add custom validate
-class WeiValidator {
+class KoaValidator55 {
   constructor (ctx) {
     this._state = {
       params: ctx.params,
@@ -309,6 +309,6 @@ class Rule {
 }
 
 module.exports = {
-  WeiValidator,
+  KoaValidator55,
   Rule,
 }
