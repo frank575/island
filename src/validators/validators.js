@@ -1,12 +1,12 @@
 const User = require('../models/user')
-const { KoaValidator55 } = require('../core/KoaValidator55')
+const { KoaValidator } = require('../core/KoaValidator')
 
 const passwordRules = r => [
   r('required', { min: 8, max: 32 }),
   r(v => /^(?![0-9]+$)(?![A-z]+$)[0-9A-z]/.test(v), '密碼格式不符合規範')
 ]
 
-class RegisterValidator extends KoaValidator55 {
+class RegisterValidator extends KoaValidator {
   constructor (ctx) {
     super(ctx)
     this.createRules(r => ({
@@ -27,7 +27,7 @@ class RegisterValidator extends KoaValidator55 {
   }
 }
 
-class LoginValidator extends KoaValidator55 {
+class LoginValidator extends KoaValidator {
   constructor (ctx) {
     super(ctx)
     this.createRules(r => ({
